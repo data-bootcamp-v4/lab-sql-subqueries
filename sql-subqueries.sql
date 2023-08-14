@@ -64,12 +64,51 @@ WHERE country="Canada";
 -- A prolific actor is defined as the actor who has acted in the most number of films. 
 -- First, you will need to find the most prolific actor and then use that actor_id to find the different films that he or she starred in.
 
-
+SELECT f.title
+FROM sakila.film f
+JOIN sakila.film_actor fa 
+USING (film_id)
+WHERE fa.actor_id = (
+SELECT fa.actor_id
+FROM sakila.film_actor fa
+GROUP BY fa.actor_id
+ORDER BY COUNT(*) DESC
+LIMIT 1
+);
 
 
 -- 7 Find the films rented by the most profitable customer in the Sakila database. You can use the customer and payment tables to find 
 -- the most profitable customer, i.e., the customer who has made the largest sum of payments.
-
+SELECT f.title
+FROM sakila.film f
+JOIN sakila.inventory i ON f.film_id = i.film_id
+JOIN sakila.rental r ON i.inventory_id = r.inventory_id
+JOIN sakila.payment p ON r.rental_id = p.rental_id
+WHERE p.customer_id = (
+SELECT p.customer_id
+FROM sakila.payment p
+GROUP BY p.customer_id
+ORDER BY SUM(p.amount) DESC
+LIMIT 1
+)
+GROUP BY f.title, p.customer_id
+ORDER BY SUM(p.amount) DESC;
 
 
 -- 8 Retrieve the client_id and the total_amount_spent of those clients who spent more than the average of the total_amount spent by each client. You can use subqueries to accomplish this.
+
+SELECT customer_id, SUM(amount) AS total_amount_spent
+FROM payment
+WHERE customer_id IN (
+SELECT customer_id
+FROM payment
+GROUP BY customer_id
+HAVING SUM(amount) > (
+SELECT AVG(total_amount_spent)
+FROM (
+SELECT customer_id, SUM(amount) AS total_amount_spent
+FROM payment
+GROUP BY customer_id)
+AS customer_spending))
+GROUP BY customer_id
+ORDER BY total_amount_spent DESC;
