@@ -68,6 +68,23 @@ Write SQL queries to perform the following tasks using the Sakila database:
 
 Complete the challenges in this readme in a `.sql`file.
 
+-- 1. Determine the number of copies of the film "Hunchback Impossible" that exist in the inventory system
+select i.film_id, i.inventory_id
+from inventory i
+where film_id = (select film_id from film where title = "Hunchback Impossible");
+
+-- 2. List all films whose length is longer than the average length of all the films in the Sakila database
+select title, length()
+from film
+where length > (select avg(length) from film);
+
+-- 3. Use a subquery to display all actors who appear in the film "Alone Trip"
+select a.first_name, a.last_name, (select title from film where film_id = fa.film_id) as film_title
+from actor a
+join film_actor a 
+on a.actor_id = fa.actor_id
+where fa.film_id = (select film_id from film where title = "Alone Trip");
+
 ## Submission
 
 - Upon completion, run the following commands:
