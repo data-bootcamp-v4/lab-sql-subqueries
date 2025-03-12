@@ -1,17 +1,25 @@
--- nº de copias de "Hunchback: Imposible"
-SELECT COUNT(*) FROM film WHERE title = 'Hunchback: Imposible';
+USE sakila;
 
--- Listado de pelis que duren mas que el promedio
+-- nº de copias de "Hunchback: Imposible":
+SELECT COUNT(*) AS num_copies FROM inventory 
+WHERE film_id = (FROM film WHERE title = 'Hunchback: Imposible');
+
+-- Listado de pelis que duren mas que el promedio:
 SELECT * FROM film
 WHERE length > (SELECT ROUND(AVG(length),2) AS 'length' FROM film);
 
 
--- Actores que aparezcan en "Alone trip" 
-SELECT * FROM actor WHERE actor_id IN (SELECT actor_id FROM film_actor WHERE film_id = 17);
+-- Actores que aparezcan en "Alone trip" :
+
+SELECT first_name, last_name FROM actor WHERE actor_id IN (SELECT
+actor_id FROM film_actor WHERE film_id = (SELECT film_id FROM film 
+WHERE title = 'Alone Trip'));
 
 -- Bonus: 
--- Busca las películas familiares ¿rating = g?
-SELECT * FROM film WHERE rating = 'g';
+-- Busca las películas familiares ¿rating = g?:
+
+SELECT title FROM film JOIN film_category USING (film_id)
+JOIN category USING (category_id) WHERE category.name = 'Family';
 
 -- Consigue el nombre y el correo de los usuarios canadoenses:
 -- customer -> address_id (address) -> city_id (city) -> country_id (country)
