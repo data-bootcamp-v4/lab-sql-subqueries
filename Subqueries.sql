@@ -32,20 +32,31 @@ USE sakila;
     WHERE co.country = 'Canada';
 
 #6
-	SELECT CONCAT(a.first_name, ' ', a.last_name) AS 'Most prolific actor'
-	FROM actor a
-	JOIN film_actor fa ON fa.actor_id = a.actor_id
-	GROUP BY a.actor_id
-	ORDER BY COUNT(fa.film_id) DESC
-	LIMIT 1;
+	SELECT f.title
+	FROM film f
+	JOIN film_actor fa ON fa.film_id = f.film_id
+	WHERE fa.actor_id = (
+		SELECT fa.actor_id
+		FROM film_actor fa
+		GROUP BY fa.actor_id
+		ORDER BY COUNT(fa.film_id) DESC
+		LIMIT 1
+	);
 
 #7
-	SELECT CONCAT(c.first_name, ' ', c.last_name) AS 'Most profitable customer'
+	SELECT f.title
 	FROM customer c
 	JOIN payment p ON p.customer_id = c.customer_id
-	GROUP BY c.customer_id
-	ORDER BY COUNT(p.amount) DESC
-	LIMIT 1;
+	JOIN rental r ON r.customer_id = c.customer_id
+	JOIN inventory i ON r.inventory_id = i.inventory_id
+	JOIN film f ON i.film_id = f.film_id
+	WHERE c.customer_id = (
+		SELECT p.customer_id
+		FROM payment p
+		GROUP BY p.customer_id
+		ORDER BY SUM(p.amount) DESC
+		LIMIT 1
+	);
     
 #8
 	SELECT 
