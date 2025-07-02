@@ -3,27 +3,28 @@ Use sakila;
 -- 1 Determine the number of copies of the film "Hunchback Impossible" that exist in the inventory system.
 
 SELECT film_id, title from sakila.film
-WHERE title = "Hunchback Impossibler";
+WHERE title = "Hunchback Impossible";
 
 
 SELECT COUNT(*) from sakila.inventory
 WHERE film_id IN (SELECT film_id from sakila.film
-WHERE title = "Hunchback Impossibler");
+WHERE title = "Hunchback Impossible");
 
 -- 2 List all films whose length is longer than the average length of all the films in the Sakila database.
 
-SELECT title, avg(length) AS average from sakila.film
-GROUP BY title
-HAVING average > (SELECT AVG(length) AS 'Average1' FROM sakila.film);
+SELECT title, length from sakila.film
+WHERE length > (SELECT AVG(length) FROM sakila.film);
 
 -- 3 Use a subquery to display all actors who appear in the film "Alone Trip".
 
 SELECT film_id from sakila.film
 WHERE title like 'Alone Trip';
 
-SELECT actor_id From sakila.film_actor
+SELECT first_name, last_name From sakila.actor as a
+JOIN sakila.film_actor as fa
+ON a.actor_id = fa.actor_id
 WHERE film_id IN (SELECT film_id from sakila.film
-WHERE title like 'Alone Trip');
+WHERE title = 'Alone Trip');
 
 -- 4 Sales have been lagging among young families, and you want to target family movies for a promotion. 
 -- Identify all movies categorized as family films.
@@ -38,7 +39,7 @@ WHERE name like 'Family'));
 -- To use joins, you will need to identify the relevant tables and their primary and foreign keys.
 
 
-SELECT first_name , last_name FROM sakila.customer
+SELECT first_name , last_name ,email FROM sakila.customer
 WHERE address_id IN ( 
 
 
