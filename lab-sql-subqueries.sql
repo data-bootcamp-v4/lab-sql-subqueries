@@ -51,14 +51,16 @@ where country.country = 'Canada';
 -- First, you will need to find the most prolific actor and then use that actor_id to find the different films that he or she starred in.
 
 -- the most prolific actor
-select actor.first_name, actor.last_name, count(film.film_id) as film_count from actor
+
+select film.film_id, film.title, film_actor.actor_id from film
+join film_actor
+on film.film_id = film_actor.film_id
+where film_actor.actor_id = (select actor.actor_id from actor
 join film_actor
 on actor.actor_id = film_actor.actor_id 
-join film 
-on film_actor.film_id = film.film_id
 group by actor.actor_id 
-order by film_count desc
-limit 1;
+order by count(film_actor.film_id) desc
+limit 1);
 
 -- Find the films rented by the most profitable customer in the Sakila database.
 -- You can use the customer and payment tables to find the most profitable customer, i.e., 
@@ -85,7 +87,7 @@ where rental.customer_id = (
 -- Retrieve the client_id and the total_amount_spent of those clients who spent more than the average of the total_amount spent by each client.
 -- You can use subqueries to accomplish this.
 
-SELECT customer.customer_id, ROUND(AVG(payment.amount),2) AS 'total_amount' FROM customer
+SELECT customer.customer_id, round(sum(payment.amount),2) AS 'total_amount' FROM customer
 join payment
 on customer.customer_id = payment.customer_id
 GROUP BY customer.customer_id
