@@ -1,0 +1,112 @@
+SELECT
+  f.title,
+  COUNT(i.inventory_id) AS copies_in_inventory
+FROM film f
+JOIN inventory i ON i.film_id = f.film_id
+WHERE f.title = 'Hunchback Impossible'
+GROUP BY f.film_id, f.title;
+SELECT
+  (SELECT COUNT(*)
+   FROM inventory i
+   WHERE i.film_id = (SELECT film_id FROM film WHERE title = 'Hunchback Impossible')
+  ) AS copies_in_inventory;
+SELECT title, length
+FROM film
+WHERE length > (SELECT AVG(length) FROM film)
+ORDER BY length DESC, title;
+SELECT a.actor_id, a.first_name, a.last_name
+FROM actor a
+WHERE a.actor_id IN (
+  SELECT fa.actor_id
+  FROM film_actor fa
+  WHERE fa.film_id = (
+    SELECT f.film_id
+    FROM film f
+    WHERE f.title = 'Alone Trip'
+  )
+)
+ORDER BY a.last_name, a.first_name;
+SELECT f.title
+FROM film f
+WHERE f.film_id IN (
+  SELECT fc.film_id
+  FROM film_category fc
+  WHERE fc.category_id = (
+    SELECT c.category_id
+    FROM category c
+    WHERE c.name = 'Family'
+  )
+)
+ORDER BY f.title;
+SELECT c.first_name, c.last_name, c.email
+FROM customer c
+WHERE c.address_id IN (
+  SELECT a.address_id
+  FROM address a
+  WHERE a.city_id IN (
+    SELECT ci.city_id
+    FROM city ci
+    WHERE ci.country_id = (
+      SELECT co.country_id
+      FROM country co
+      WHERE co.country = 'Canada'
+    )
+  )
+)
+ORDER BY c.last_name, c.first_name;
+
+SELECT c.first_name, c.last_name, c.email
+FROM customer c
+JOIN address a  ON a.address_id = c.address_id
+JOIN city ci    ON ci.city_id = a.city_id
+JOIN country co ON co.country_id = ci.country_id
+WHERE co.country = 'Canada'
+ORDER BY c.last_name, c.first_name;
+SELECT f.title
+FROM film f
+WHERE f.film_id IN (
+  SELECT fa.film_id
+  FROM film_actor fa
+  WHERE fa.actor_id = (
+    SELECT fa2.actor_id
+    FROM film_actor fa2
+    GROUP BY fa2.actor_id
+    ORDER BY COUNT(*) DESC
+    LIMIT 1
+  )
+)
+ORDER BY f.title;
+SELECT a.actor_id, a.first_name, a.last_name, COUNT(*) AS film_count
+FROM actor a
+JOIN film_actor fa ON fa.actor_id = a.actor_id
+GROUP BY a.actor_id
+ORDER BY film_count DESC
+LIMIT 1;
+SELECT DISTINCT f.title
+FROM film f
+JOIN inventory i ON i.film_id = f.film_id
+JOIN rental r    ON r.inventory_id = i.inventory_id
+WHERE r.customer_id = (
+  SELECT p.customer_id
+  FROM payment p
+  GROUP BY p.customer_id
+  ORDER BY SUM(p.amount) DESC
+  LIMIT 1
+)
+ORDER BY f.title;
+
+SELECT t.customer_id AS client_id, t.total_amount_spent
+FROM (
+  SELECT customer_id, SUM(amount) AS total_amount_spent
+  FROM payment
+  GROUP BY customer_id
+) t
+WHERE t.total_amount_spent > (
+  SELECT AVG(x.total_amount_spent)
+  FROM (
+    SELECT customer_id, SUM(amount) AS total_amount_spent
+    FROM payment
+    GROUP BY customer_id
+  ) x
+)
+ORDER BY t.total_amount_spent DESC;
