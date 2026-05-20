@@ -14,17 +14,18 @@
 use sakila;
 select count(inventory_id) from inventory where film_id = (select film_id from film where title="Hunchback Impossible");
 select title from film where length>(select avg(length) from film);
-select concat(first_name,' ' ,last_name) as actor from actor where actor_id in (select af.actor_id from film_actor as af inner join film as f on af.film_id=f.film_id where title="Alone Trip");  
+select first_name,last_name as actor from actor where actor_id in (select af.actor_id from film_actor as af inner join film as f on af.film_id=f.film_id where title="Alone Trip");  
 
 select title from film where film_id in (select fc.film_id from film_category as fc inner join category as c on c.category_id=fc.category_id where name='Family') ;
-select first_name, last_name, email from customer where address_id in 
-(select distinct(a.address_id) from address as a inner join city as c on a.city_id=a.city_id inner join country as co on c.country_id=co.country_id where co.country='Canada');
+
+select concat(first_name,' ' ,last_name), email from customer where address_id in 
+(select distinct(a.address_id) from address as a inner join city as c on a.city_id=c.city_id inner join country as co on c.country_id=co.country_id where co.country='Canada');
 
 select f.title from film as f inner join film_actor as fa on f.film_id=fa.film_id where fa.actor_id = (select actor_id from film_actor group by actor_id order by count(film_id) desc limit 1);
 
-select f.title from film as f inner join inventory as i on f.film_id=i.film_id left join rental as r on i.inventory_id=r.inventory_id 
-where customer_id =(select customer_id from payment group by customer_id order by sum(amount) limit 1);
+select f.title from film as f inner join inventory as i on f.film_id=i.film_id inner join rental as r on i.inventory_id=r.inventory_id 
+where customer_id =(select customer_id from payment group by customer_id order by sum(amount) desc limit 1);
 
 select sum(amount) as total_amount from payment group by customer_id;
-select customer_id, sum(amount) from payment group by customer_id having sum(amount) > 
+select customer_id as client_id, sum(amount) as total_amount_spent from payment group by customer_id having sum(amount) > 
 (select avg(total_amount) from (select sum(amount) as total_amount from payment group by customer_id) as tas);
