@@ -1,4 +1,5 @@
 #Challenge
+Use Sakila;
 # 1. Determine the number of copies of the film "Hunchback Impossible" that exist in the inventory system.
 #I need to connect film and inventory and count the copies.
 SELECT 
@@ -39,3 +40,18 @@ ON actor.actor_id = film_actor.actor_id
 JOIN film
 ON film_actor.film_id = film.film_id
 WHERE film.title = 'Alone Trip';
+#subquery version
+SELECT 
+    film.title,
+    actor.first_name,
+    actor.last_name
+FROM actor
+JOIN film_actor
+ON actor.actor_id = film_actor.actor_id
+JOIN film
+ON film_actor.film_id = film.film_id
+WHERE film_actor.film_id = (
+    SELECT film_id
+    FROM film
+    WHERE title = 'Alone Trip'
+);
