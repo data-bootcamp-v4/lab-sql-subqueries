@@ -153,10 +153,3 @@ HAVING SUM(payment.amount) > (
 );
 
 
-SELECT customer.first_name, customer.last_name, customer.email
-FROM sakila.customer 
-JOIN sakila.address ON customer.address_id = address.address_id 
-JOIN sakila.city ON address.city_id = city.city_id
-WHERE city.country_id = (SELECT country_id FROM sakila.country WHERE country = 'Canada')
-
-
